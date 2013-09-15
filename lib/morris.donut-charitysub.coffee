@@ -85,8 +85,7 @@ class Morris.Donut extends Morris.EventEmitter
       last = next
       idx += 1
 
-    @text1 = @drawEmptyDonutLabel(cx, cy - 10, @options.labelColor, 15, 800)
-    @text2 = @drawEmptyDonutLabel(cx, cy + 10, @options.labelColor, 14)
+    @text = @drawEmptyDonutLabel(cx, cy - 5, @options.labelColor, 45, 300)
 
     max_value = Math.max.apply(null, value for value in @values)
     idx = 0
@@ -102,31 +101,26 @@ class Morris.Donut extends Morris.EventEmitter
 
   # Select the segment at the given index.
   select: (idx) =>
+    return if idx > 0 # only one segment of interest per chart
     s.deselect() for s in @segments
     segment = @segments[idx]
     segment.select()
     row = @data[idx]
-    @setLabels(row.label, @options.formatter(row.value, row))
+    @setLabels(@options.formatter(row.value, row))
 
   # @private
-  setLabels: (label1, label2) ->
+  setLabels: (label) ->
     inner = (Math.min(@el.width() / 2, @el.height() / 2) - 10) * 2 / 3
     maxWidth = 1.8 * inner
     maxHeightTop = inner / 2
     maxHeightBottom = inner / 3
-    @text1.attr(text: label1, transform: '')
-    text1bbox = @text1.getBBox()
-    text1scale = Math.min(maxWidth / text1bbox.width, maxHeightTop / text1bbox.height)
-    @text1.attr(transform: "S#{text1scale},#{text1scale},#{text1bbox.x + text1bbox.width / 2},#{text1bbox.y + text1bbox.height}")
-    @text2.attr(text: label2, transform: '')
-    text2bbox = @text2.getBBox()
-    text2scale = Math.min(maxWidth / text2bbox.width, maxHeightBottom / text2bbox.height)
-    @text2.attr(transform: "S#{text2scale},#{text2scale},#{text2bbox.x + text2bbox.width / 2},#{text2bbox.y}")
+    @text.attr(text: label, transform: '')
 
   drawEmptyDonutLabel: (xPos, yPos, color, fontSize, fontWeight) ->
     text = @raphael.text(xPos, yPos, '')
       .attr('font-size', fontSize)
       .attr('fill', color)
+      .attr('font-family', 'proxima-nova')
     text.attr('font-weight', fontWeight) if fontWeight?
     return text
 
@@ -190,8 +184,8 @@ class Morris.DonutSegment extends Morris.EventEmitter
 
   select: =>
     unless @selected
-      @seg.animate(path: @selectedPath, 150, '<>')
-      @arc.animate(opacity: 1, 150, '<>')
+      # @seg.animate(path: @selectedPath, 150, '<>')
+      # @arc.animate(opacity: 1, 150, '<>')
       @selected = true
 
   deselect: =>
